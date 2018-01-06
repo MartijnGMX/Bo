@@ -1,0 +1,9 @@
+*.csproj
+Assets/SteamVR/
+Assets/VRTK/
+Library/
+obj/
+ProjectSettings/
+*.sln
+*.userprefs
+UnityPackageManager/
