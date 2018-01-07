@@ -22,8 +22,7 @@ GameObject:
   - component: {fileID: 33998209932639934}
   - component: {fileID: 135136528929681780}
   - component: {fileID: 23953367465393596}
-  - component: {fileID: 54324976793430184}
-  - component: {fileID: 114955810701841000}
+  - component: {fileID: 114103730910886356}
   m_Layer: 8
   m_Name: ball
   m_TagString: Untagged
@@ -85,22 +84,7 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1408105008521542}
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
---- !u!54 &54324976793430184
-Rigidbody:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1408105008521542}
-  serializedVersion: 2
-  m_Mass: 0.02
-  m_Drag: 0.5
-  m_AngularDrag: 0.05
-  m_UseGravity: 0
-  m_IsKinematic: 0
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 2
---- !u!114 &114955810701841000
+--- !u!114 &114103730910886356
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_PrefabParentObject: {fileID: 0}
@@ -108,9 +92,17 @@ MonoBehaviour:
   m_GameObject: {fileID: 1408105008521542}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 353e8ad1085a6d545b66285085c32b75, type: 3}
+  m_Script: {fileID: 11500000, guid: 0cafb33315dcc3b4f80d392920517734, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitFilter:
+    serializedVersion: 2
+    m_Bits: 512
+  hitterType: {fileID: 0}
+  hitEvent: {fileID: 11400000, guid: b0f90790985325f4dae44c3de99dc7cb, type: 2}
+  missEvent: {fileID: 11400000, guid: 7b6ddad2e7f96384ab87c8af57a9db1d, type: 2}
+  points: {fileID: 11400000, guid: 552e8b1accc50504581fd1a81e7a406d, type: 2}
+  newScore: {fileID: 11400000, guid: dd5cee1fff1216d47b649c6b16208a63, type: 2}
 --- !u!135 &135136528929681780
 SphereCollider:
   m_ObjectHideFlags: 1

@@ -26,7 +26,7 @@ GameObject:
   - component: {fileID: 54668445700061070}
   - component: {fileID: 114410894677661140}
   m_Layer: 9
-  m_Name: BoPartCollider
+  m_Name: BoPartCollider Left
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -83,7 +83,7 @@ MeshRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1433146770869354}
-  m_Enabled: 0
+  m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -197,7 +197,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05913ad1b81f3d944b356e6b0e3aae1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitterType: {fileID: 11400000, guid: d394978bd37b9a64f9758b5200b18419, type: 2}
+  hitterType: {fileID: 11400000, guid: cc354a58dd53e8c4e874a8fa06f2d6ee, type: 2}
 --- !u!114 &114619607446066742
 MonoBehaviour:
   m_ObjectHideFlags: 1

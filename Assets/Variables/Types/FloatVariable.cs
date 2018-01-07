@@ -34,8 +34,18 @@ namespace IvoryLake.Variables
 			Value = defaultValue;
 		}
 
-		public void SetValue(int val){
-			Value = (float) val;
+		public void SetValue(float val, bool alwaysRaise = false){
+			if(val != _value || alwaysRaise) {
+				_value = val;
+				RaiseChanged();
+			} 
+		}
+
+		public void SetValue(int val, bool alwaysRaise = false){
+			if(val != _value || alwaysRaise) {
+				_value = (float) val;
+				RaiseChanged();
+			} 
 		}
 		public void SetValue(string val){
 			try{

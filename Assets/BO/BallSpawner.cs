@@ -10,15 +10,18 @@ public class BallSpawner : MonoBehaviour {
 	public float currentInterval;
 
 	public Vector3[] spawnPoints;
+	public HitterType[] hitterTypes;
 
 	public bool keepSpawning = false;
 
 	public bool spawnWithVelocity;
 	public Vector3 initialVelocity;
 
+	public int ballCounter;
 	// Use this for initialization
 	void Start () {
 		StartCoroutine(KeepSpawning());
+		ballCounter = 0;
 	}
 	
 	// Update is called once per frame
@@ -31,11 +34,16 @@ public class BallSpawner : MonoBehaviour {
 		Vector3 pos = transform.TransformPoint(spawnPoints[i]);
 
 		GameObject newGO = Instantiate(spawnPrefab, pos, Quaternion.identity);
+		newGO.name = "Ball_" + (ballCounter++);
 		if(spawnWithVelocity) {
 			Rigidbody rb = newGO.GetComponent<Rigidbody>();
 			rb.useGravity = true;
 			rb.velocity = initialVelocity;
 		}
+
+		int hitterId = Random.Range(0, hitterTypes.Length);
+		newGO.GetComponent<BallHitHandler>().hitterType = hitterTypes[hitterId];
+		Debug.Log("Ball spawned: " + newGO.name + " with hitter type: " + hitterTypes[hitterId].name);
 	}
 
 	void OnDrawGizmos()
@@ -46,7 +54,7 @@ public class BallSpawner : MonoBehaviour {
 			Gizmos.DrawWireSphere(transform.TransformPoint(pos), 0.3f);
 		}
 	}
-	void SpawnAfterInterval(){
+	public void SpawnAfterInterval(){
 		StartCoroutine(SpawnOnceAfterInterval());
 	}
 	IEnumerator SpawnOnceAfterInterval(){
