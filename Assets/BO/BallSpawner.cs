@@ -13,6 +13,9 @@ public class BallSpawner : MonoBehaviour {
 
 	public bool keepSpawning = false;
 
+	public bool spawnWithVelocity;
+	public Vector3 initialVelocity;
+
 	// Use this for initialization
 	void Start () {
 		StartCoroutine(KeepSpawning());
@@ -25,9 +28,14 @@ public class BallSpawner : MonoBehaviour {
 	// spawn a prefab at one of the spawn points
 	void Spawn(){
 		int i = Random.Range(0, spawnPoints.Length);
-		Vector3 pos = spawnPoints[i];
+		Vector3 pos = transform.TransformPoint(spawnPoints[i]);
 
-		Instantiate(spawnPrefab, pos, Quaternion.identity);
+		GameObject newGO = Instantiate(spawnPrefab, pos, Quaternion.identity);
+		if(spawnWithVelocity) {
+			Rigidbody rb = newGO.GetComponent<Rigidbody>();
+			rb.useGravity = true;
+			rb.velocity = initialVelocity;
+		}
 	}
 
 	void OnDrawGizmos()
