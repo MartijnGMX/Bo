@@ -10,6 +10,8 @@ public class BallHitHandler : MonoBehaviour {
 	public EventVariable missEvent; // trigger this if a wrong hit is detected, e.g. by the wrong hitterType
 	public FloatVariable points;
 	public FloatVariable newScore;
+	public FloatVariable particleVelocityScale;
+	public ParticleSystem ps;
 
 	// extra stuff for hitDirection and hitterType
 //	public enum side;
@@ -27,6 +29,7 @@ public class BallHitHandler : MonoBehaviour {
 		} else {
 			Debug.LogError("BallHitHandler: no MeshRenderer found to set color to!");
 		}
+		ps = GetComponent<ParticleSystem>();
 	}
 
 	void OnCollisionEnter(Collision collision)
@@ -40,9 +43,27 @@ public class BallHitHandler : MonoBehaviour {
 						hitEvent.Raise();
 
 						newScore.SetValue(points.Value, true); // always generate events, even if value is the same as the existing value
-						// TODO: start animation
-						gameObject.SetActive(false);
-						this.enabled = false; // otherwise we still get events?
+
+						// Emit particles
+						if(ps) {
+							ParticleSystem.VelocityOverLifetimeModule vel = ps.velocityOverLifetime;
+							vel.enabled = true;
+							vel.space = ParticleSystemSimulationSpace.World;
+							Vector3 velocity = -collision.collider.attachedRigidbody.GetPointVelocity(collision.contacts[0].point);
+							//Rigidbody rb = hitter.GetComponent<Rigidbody>();
+							velocity *= particleVelocityScale.Value;
+							
+							vel.x = velocity.x;
+							vel.y = velocity.y;
+							vel.z = velocity.z;
+							ps.Play();
+						}
+						// 
+						DisableAfterParticleSystem();
+						//gameObject.SetActive(false);
+						//this.enabled = false; // otherwise we still get events?
+						GetComponent<Collider>().enabled = false;
+						GetComponent<Renderer>().enabled = false;
 					} else {
 						// wrong hit type!
 						missEvent.Raise();
@@ -54,4 +75,15 @@ public class BallHitHandler : MonoBehaviour {
 		}
 	}
 
+	void DisableAfterParticleSystem(){
+		StartCoroutine(DisableAfterPS());
+	}
+
+	IEnumerator DisableAfterPS(){
+		while(ps.isPlaying) {
+			yield return new WaitForEndOfFrame();
+		}
+		gameObject.SetActive(false);
+		this.enabled = false; // otherwise we still get events?
+	}
 }

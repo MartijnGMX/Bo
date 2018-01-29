@@ -8752,7 +8752,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 729a0452822fa804ea57bbf3b2d308fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnPrefab: {fileID: 1408105008521542, guid: c7ed933fdea03e549baaad1b7579488f,
+  spawnPrefab: {fileID: 1129584715020968, guid: da3c8b858cc0c6544bcd51e0c5df97c8,
     type: 2}
   initialInterval: 0.5
   currentInterval: 1
@@ -11853,7 +11853,7 @@ Prefab:
     - target: {fileID: 224000012623161658, guid: d46cf6b1ad9d84a48ae7548a2a6b41b3,
         type: 2}
       propertyPath: m_LocalPosition.y
-      value: 236.5
+      value: -306.5
       objectReference: {fileID: 0}
     - target: {fileID: 224000012484682510, guid: d46cf6b1ad9d84a48ae7548a2a6b41b3,
         type: 2}
