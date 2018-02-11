@@ -9,7 +9,11 @@ public class BallSpawner : MonoBehaviour {
 
 	public float currentInterval;
 
-	public Vector3[] spawnPoints;
+	public BallSpawnPoint[] spawnPoints;
+	private BallSpawnPoint lastSpawnPoint;
+
+	public MeshFilter arrowMesh;
+
 	public HitterType[] hitterTypes;
 
 	public bool keepSpawning = false;
@@ -22,18 +26,35 @@ public class BallSpawner : MonoBehaviour {
 	void Start () {
 		StartCoroutine(KeepSpawning());
 		ballCounter = 0;
+		lastSpawnPoint = null;
+		spawnPoints = GetComponentsInChildren<BallSpawnPoint>(true);
+		currentInterval = initialInterval;
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		
 	}
+
+	BallSpawnPoint GetRandomSpawnPoint(){
+		int i = Random.Range(0, spawnPoints.Length);
+		BallSpawnPoint newPos = spawnPoints[i];
+		if (lastSpawnPoint!=null){
+			// ensure we get a different position than last time (rotation may be different though)
+			while (Vector3.SqrMagnitude(newPos.transform.position - lastSpawnPoint.transform.position)<0.1f){
+				// too close, take another guess
+				i = Random.Range(0, spawnPoints.Length);
+				newPos = spawnPoints[i];
+			}
+		}	
+		lastSpawnPoint = newPos;
+		return newPos;
+	}
 	// spawn a prefab at one of the spawn points
 	void Spawn(){
-		int i = Random.Range(0, spawnPoints.Length);
-		Vector3 pos = transform.TransformPoint(spawnPoints[i]);
+		BallSpawnPoint newPos = GetRandomSpawnPoint();
 
-		GameObject newGO = Instantiate(spawnPrefab, pos, Quaternion.identity);
+		GameObject newGO = Instantiate(spawnPrefab, newPos.transform.position, newPos.transform.rotation, transform	);
 		newGO.name = "Ball_" + (ballCounter++);
 		if(spawnWithVelocity) {
 			Rigidbody rb = newGO.GetComponent<Rigidbody>();
@@ -41,17 +62,17 @@ public class BallSpawner : MonoBehaviour {
 			rb.velocity = initialVelocity;
 		}
 
-		int hitterId = Random.Range(0, hitterTypes.Length);
-		newGO.GetComponent<BallHitHandler>().hitterType = hitterTypes[hitterId];
-		Debug.Log("Ball spawned: " + newGO.name + " with hitter type: " + hitterTypes[hitterId].name);
+		//int hitterId = Random.Range(0, hitterTypes.Length);
+		newGO.GetComponent<BallHitHandler>().hitterType = newPos.hitterType; //hitterTypes[hitterId];
+		//Debug.Log("Ball spawned: " + newGO.name + " with hitter type: " + hitterTypes[hitterId].name);
 	}
 
-	void OnDrawGizmos()
+	void OnDrawGizmosSelected()
 	{
 		Gizmos.color = Color.yellow;
 		//Gizmos.DrawSphere(transform.position, 1f);
-		foreach(Vector3 pos in spawnPoints) {
-			Gizmos.DrawWireSphere(transform.TransformPoint(pos), 0.3f);
+		foreach(BallSpawnPoint sp in spawnPoints) {
+			Gizmos.DrawWireMesh(arrowMesh.sharedMesh, sp.transform.position, sp.transform.rotation);
 		}
 	}
 	public void SpawnAfterInterval(){

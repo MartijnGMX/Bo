@@ -8,3 +8,4 @@ ProjectSettings/
 *.userprefs
 UnityPackageManager/
 Temp/
+Builds/

@@ -13,6 +13,16 @@ public class BallHitHandler : MonoBehaviour {
 	public FloatVariable particleVelocityScale;
 	public ParticleSystem ps;
 
+	public TextMesh debugText;
+	public TextMesh scoreText;
+
+	public BoolVariable removeAfterHit;
+	public FloatReference allowedAngleError;
+
+	public bool isAlreadyHit;
+
+	public Renderer[] renderersToDisableWhenStartingPS;
+
 	// extra stuff for hitDirection and hitterType
 //	public enum side;
 	// TODO: add minimum velocity?
@@ -30,47 +40,85 @@ public class BallHitHandler : MonoBehaviour {
 			Debug.LogError("BallHitHandler: no MeshRenderer found to set color to!");
 		}
 		ps = GetComponent<ParticleSystem>();
+		isAlreadyHit = false;
 	}
 
-	void OnCollisionEnter(Collision collision)
+	void OnTriggerEnter(Collider collider)
 	{
-		if(this.enabled) {
-			if(IsInLayerMask(collision.gameObject.layer, hitFilter)) {
-				Hitter hitter = collision.gameObject.GetComponent<Hitter>();
+		if(this.enabled && !isAlreadyHit) {
+			if(IsInLayerMask(collider.gameObject.layer, hitFilter)) {
+				Hitter hitter = collider.gameObject.GetComponent<Hitter>();
 				if(hitter != null) {
-					if(hitter.hitterType == this.hitterType) {
-						Debug.Log("Ball (" + this.name + ") has been hit! hitter:" + collision.gameObject.name);
-						hitEvent.Raise();
+					isAlreadyHit = true;
+					// check hit direction:
+				
+					Vector3 worldHitDir = hitter.velocity.normalized;
+					Vector3 relHitDir = transform.InverseTransformDirection(worldHitDir);
 
-						newScore.SetValue(points.Value, true); // always generate events, even if value is the same as the existing value
+					// only care about xy for now:
+					relHitDir.z = 0f;
+					relHitDir = relHitDir.normalized;
 
-						// Emit particles
-						if(ps) {
-							ParticleSystem.VelocityOverLifetimeModule vel = ps.velocityOverLifetime;
-							vel.enabled = true;
-							vel.space = ParticleSystemSimulationSpace.World;
-							Vector3 velocity = -collision.collider.attachedRigidbody.GetPointVelocity(collision.contacts[0].point);
-							//Rigidbody rb = hitter.GetComponent<Rigidbody>();
-							velocity *= particleVelocityScale.Value;
-							
-							vel.x = velocity.x;
-							vel.y = velocity.y;
-							vel.z = velocity.z;
-							ps.Play();
+					float angle = Mathf.Rad2Deg * Mathf.Acos(Vector3.Dot(relHitDir, Vector3.up));
+
+					debugText.text = angle.ToString("F");
+					if(angle < allowedAngleError.Value) {
+						// check hitterType:
+						if(hitter.hitterType == this.hitterType) {
+						//	Debug.Log("Ball (" + this.name + ") has been hit! hitter:" + collider.gameObject.name);
+
+							scoreText.text = points.Value.ToString("F");
+							newScore.SetValue(points.Value, true); // always generate events, even if value is the same as the existing value
+							// 
+							if(removeAfterHit.Value) {
+								hitEvent.Raise();
+
+								// Emit particles
+								if(ps) {
+									ParticleSystem.VelocityOverLifetimeModule vel = ps.velocityOverLifetime;
+									vel.enabled = true;
+									vel.space = ParticleSystemSimulationSpace.World;
+									Vector3 velocity = worldHitDir;
+									//Rigidbody rb = hitter.GetComponent<Rigidbody>();
+									velocity *= particleVelocityScale.Value;
+									
+									vel.x = velocity.x;
+									vel.y = velocity.y;
+									vel.z = velocity.z;
+									ps.Play();
+								} 
+								DisableAfterParticleSystem();
+
+								//gameObject.SetActive(false);
+								//this.enabled = false; // otherwise we still get events?
+								foreach(Renderer ren in renderersToDisableWhenStartingPS) {
+									ren.enabled = false;
+								}
+
+							}
+						} else {
+							debugText.text += "\nwrong hitter type!";
+							// wrong hit type!
+							missEvent.Raise();
 						}
-						// 
-						DisableAfterParticleSystem();
-						//gameObject.SetActive(false);
-						//this.enabled = false; // otherwise we still get events?
-						GetComponent<Collider>().enabled = false;
-						GetComponent<Renderer>().enabled = false;
 					} else {
-						// wrong hit type!
+						// wrong hit direction!
+						debugText.text += "\noff direction!";
 						missEvent.Raise();
 					}
 				} else {
 					// hit by something without a 'Hitter' component
 				}
+			}
+		}
+	}
+	void OnTriggerExit(Collider collider)
+	{
+		if(IsInLayerMask(collider.gameObject.layer, hitFilter)) {
+			Hitter hitter = collider.gameObject.GetComponent<Hitter>();
+			if(hitter != null) {
+	//			debugText.text = "released";
+				isAlreadyHit = false;
 			}
 		}
 	}
@@ -80,7 +128,7 @@ public class BallHitHandler : MonoBehaviour {
 	}
 
 	IEnumerator DisableAfterPS(){
-		while(ps.isPlaying) {
+		while(ps!=null && ps.isPlaying) {
 			yield return new WaitForEndOfFrame();
 		}
 		gameObject.SetActive(false);
